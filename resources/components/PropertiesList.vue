@@ -1,4 +1,6 @@
 <script>
+import Months from '@/enums/Months';
+
 export default {
   name: 'PropertiesList',
   props: {
@@ -45,8 +47,7 @@ export default {
     },
     determinateCellValue(value, type) {
       if (type === 'date' && value) {
-        const date = new Date(value);
-        return date.toLocaleDateString();
+        return `${Months[value.getMonth() + 1]} ${value.getDate()}/${value.getFullYear()}`;
       }
 
       if (type === 'boolean') {
