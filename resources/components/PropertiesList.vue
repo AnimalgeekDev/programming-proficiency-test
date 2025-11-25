@@ -47,7 +47,7 @@ export default {
     },
     determinateCellValue(value, type) {
       if (type === 'date' && value) {
-        return `${Months[value.getMonth() + 1]} ${value.getDate()}/${value.getFullYear()}`;
+        return `${Months[value.getMonth() - 1]} ${value.getDate()}/${value.getFullYear()}`;
       }
 
       if (type === 'boolean') {

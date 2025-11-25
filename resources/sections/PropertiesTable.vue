@@ -44,14 +44,19 @@ export default {
   },
   methods: {
     calcMountRented(rentedFrom, rentedTo) {
+      let months = 0;
+
       if (rentedTo !== null) {
-        let months = (rentedTo.getFullYear() - rentedFrom.getFullYear()) * 12;
+        months = (rentedTo.getFullYear() - rentedFrom.getFullYear()) * 12;
         months -= rentedFrom.getMonth();
         months += rentedTo.getMonth();
-        return months <= 0 ? 0 : months;
+      } else {
+        months = (this.today.getFullYear() - rentedFrom.getFullYear()) * 12;
+        months -= rentedFrom.getMonth();
+        months += this.today.getMonth();
       }
 
-      return rentedFrom.getDate() - this.today.getDate();
+      return months <= 0 ? 0 : months;
     },
     handleFilterChange(filters) {
       this.activeFilters = { ...filters };

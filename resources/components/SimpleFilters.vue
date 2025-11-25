@@ -49,6 +49,7 @@ export default {
   },
   watch: {
     fromStartDate(newDate) {
+      console.log(newDate);
       if ((new Date(newDate)).getTime() > (new Date(this.fromEndDate)).getTime()) {
         this.fromEndDate = null;
       }
@@ -67,8 +68,39 @@ export default {
       this.emitFilterChange();
     },
   },
-  setup() {
-    // * Escuche los parámetros de URL para filtrar al cargar la página, por ejemplo?user=1
+  created() {
+    const urlFilters = {};
+    const urlSearchParams = new URLSearchParams(window.location.search);
+
+    urlSearchParams.forEach((value, key) => {
+      urlFilters[key] = value;
+    });
+
+    const {
+      propertyType,
+      userId,
+      fromStartDate,
+      fromEndDate,
+      toStartDate,
+      toEndDate,
+    } = urlFilters;
+
+    if (propertyType != null && propertyType !== '') {
+      const maybePropertyType = Number(propertyType);
+      this.propertyType = !Number.isNaN(maybePropertyType) ? maybePropertyType : propertyType;
+    }
+
+    if (userId != null && userId !== '') {
+      const maybeUserId = Number(userId);
+      this.userId = !Number.isNaN(maybeUserId) ? maybeUserId : userId;
+    }
+
+    this.fromStartDate = fromStartDate;
+    this.fromEndDate = fromEndDate;
+    this.toStartDate = toStartDate;
+    this.toEndDate = toEndDate;
+
+    console.log(this.fromStartDate);
   },
 };
 </script>
@@ -81,7 +113,9 @@ export default {
           class="w-48 bg-white border border-gray-400 rounded-md"
           v-model="propertyType" @change="emitFilterChange">
           <option value=""></option>
-          <option v-for="{ id, name } in propertiesType" :key="id" :value="id">{{ name }}</option>
+          <option v-for="{ id, name } in propertiesType" :key="id" :value="id" class="capitalize">
+            {{ name }}
+          </option>
         </select>
       </div>
 
@@ -91,7 +125,9 @@ export default {
           class="w-48 bg-white border border-gray-400 rounded-md" v-model="userId"
           @change="emitFilterChange">
           <option value=""></option>
-          <option v-for="{ id, name } in users" :key="id" :value="id">{{ name }}</option>
+          <option v-for="{ id, name } in users" :key="id" :value="id" class="capitalize">
+            {{ name }}
+          </option>
         </select>
       </div>
     </div>
