@@ -2,12 +2,14 @@
 import PropertiesList from '@/components/PropertiesList.vue';
 import SimpleFilters from '@/components/SimpleFilters.vue';
 import PropertyColumnEnum from '@/enums/PropertyColumnEnum';
+import FooterSection from '@/sections/FooterSection.vue';
 
 export default {
   name: 'PropertiesTable',
   components: {
     PropertiesList,
     SimpleFilters,
+    FooterSection,
   },
   props: {
     users: {
@@ -84,22 +86,13 @@ export default {
 
       if (this.activeFilters.toStartDate) {
         filtered = filtered.filter(
-          (p) => {
-            console.log(p.rentedTo, this.activeFilters.toStartDate);
-            console.log(p.rentedTo >= this.activeFilters.toStartDate);
-            return p.rentedTo >= this.activeFilters.toStartDate;
-          },
+          (p) => p.rentedTo >= this.activeFilters.toStartDate,
         );
       }
 
       if (this.activeFilters.toEndDate) {
         filtered = filtered.filter(
-          (p) => {
-            console.log('-----');
-            console.log(p.rentedTo, this.activeFilters.toStartDate);
-            console.log(p.rentedTo >= this.activeFilters.toStartDate);
-            return p.rentedTo <= this.activeFilters.toEndDate;
-          },
+          (p) => p.rentedTo <= this.activeFilters.toEndDate,
         );
       }
 
@@ -122,19 +115,22 @@ export default {
 };
 </script>
 <template>
-  <div>
-    <h1 class="text-3xl m-4 font-bold border rounded-2xl bg-blue-500 text-white p-4">
-      Lista de propiedades administradas
-    </h1>
-    <div>
+  <div class="min-h-screen w-full flex flex-col">
+    <header class="flex items-center">
+      <h1 class="w-full text-3xl font-bold bg-blue-500 text-white p-4">
+        Lista de propiedades administradas
+      </h1>
+    </header>
+
+    <main class="overflow-auto p-4">
       <SimpleFilters
         :users="users"
         :propertiesType="propertyTypes"
         @filterChange="handleFilterChange" />
-    </div>
-    <div>
       <PropertiesList :headers="headers" :properties="propertiesFiltered"></PropertiesList>
-    </div>
+    </main>
+
+    <FooterSection></FooterSection>
   </div>
 </template>
 <style scoped></style>
