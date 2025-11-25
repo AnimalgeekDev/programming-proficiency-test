@@ -49,7 +49,6 @@ export default {
   },
   watch: {
     fromStartDate(newDate) {
-      console.log(newDate);
       if ((new Date(newDate)).getTime() > (new Date(this.fromEndDate)).getTime()) {
         this.fromEndDate = null;
       }
@@ -99,8 +98,6 @@ export default {
     this.fromEndDate = fromEndDate;
     this.toStartDate = toStartDate;
     this.toEndDate = toEndDate;
-
-    console.log(this.fromStartDate);
   },
 };
 </script>
