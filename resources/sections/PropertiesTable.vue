@@ -28,15 +28,82 @@ export default {
       today: new Date(),
       headers: [],
       propertiesEnhanced: [],
+      propertiesFiltered: [],
       isMagicFilter: false,
+      activeFilters: {
+        propertyType: null,
+        userId: null,
+        fromStartDate: null,
+        fromEndDate: null,
+        toStartDate: null,
+        toEndDate: null,
+      },
     };
   },
   methods: {
     calcMountRented(rentedFrom, rentedTo) {
-      if (rentedTo) {
-        return rentedFrom.getDate() - rentedTo.getDate();
+      if (rentedTo !== null) {
+        let months = (rentedTo.getFullYear() - rentedFrom.getFullYear()) * 12;
+        months -= rentedFrom.getMonth();
+        months += rentedTo.getMonth();
+        return months <= 0 ? 0 : months;
       }
+
       return rentedFrom.getDate() - this.today.getDate();
+    },
+    handleFilterChange(filters) {
+      this.activeFilters = { ...filters };
+      this.applyFilters();
+    },
+    applyFilters() {
+      let filtered = [...this.propertiesEnhanced];
+
+      if (this.activeFilters.propertyType) {
+        filtered = filtered.filter(
+          (p) => p.typeId === this.activeFilters.propertyType,
+        );
+      }
+
+      if (this.activeFilters.userId) {
+        filtered = filtered.filter(
+          (p) => p.userId === this.activeFilters.userId,
+        );
+      }
+
+      if (this.activeFilters.fromStartDate) {
+        filtered = filtered.filter(
+          (p) => p.rentedFrom >= this.activeFilters.fromStartDate,
+        );
+      }
+
+      if (this.activeFilters.fromEndDate) {
+        filtered = filtered.filter(
+          (p) => p.rentedFrom <= this.activeFilters.fromEndDate,
+        );
+      }
+
+      if (this.activeFilters.toStartDate) {
+        filtered = filtered.filter(
+          (p) => {
+            console.log(p.rentedTo, this.activeFilters.toStartDate);
+            console.log(p.rentedTo >= this.activeFilters.toStartDate);
+            return p.rentedTo >= this.activeFilters.toStartDate;
+          },
+        );
+      }
+
+      if (this.activeFilters.toEndDate) {
+        filtered = filtered.filter(
+          (p) => {
+            console.log('-----');
+            console.log(p.rentedTo, this.activeFilters.toStartDate);
+            console.log(p.rentedTo >= this.activeFilters.toStartDate);
+            return p.rentedTo <= this.activeFilters.toEndDate;
+          },
+        );
+      }
+
+      this.propertiesFiltered = filtered;
     },
   },
   mounted() {
@@ -44,22 +111,29 @@ export default {
 
     this.propertiesEnhanced = this.properties.map((m) => ({
       ...m,
-      typeId: this.propertyTypes.find((pt) => pt.id === m.typeId)?.name || null,
-      userId: this.users.find((u) => u.id === m.userId)?.name || null,
+      type: this.propertyTypes.find((pt) => pt.id === m.typeId)?.name || null,
+      userName: this.users.find((u) => u.id === m.userId)?.name || null,
       monthsRented: m.rentedFrom !== null ? this.calcMountRented(m.rentedFrom, m.rentedTo) : 0,
       isRentable: m.rentedTo !== null ? m.rentedTo.getDate() < this.today.getDate() : true,
-    }));
+    })).sort((a, b) => (a.id > b.id ? 1 : -1));
+
+    this.propertiesFiltered = this.propertiesEnhanced;
   },
 };
 </script>
 <template>
   <div>
-    <h1>Lista de propiedades</h1>
+    <h1 class="text-3xl m-4 font-bold border rounded-2xl bg-blue-500 text-white p-4">
+      Lista de propiedades administradas
+    </h1>
     <div>
-      <SimpleFilters :users="users" :propertiesType="propertyTypes"></SimpleFilters>
+      <SimpleFilters
+        :users="users"
+        :propertiesType="propertyTypes"
+        @filterChange="handleFilterChange" />
     </div>
     <div>
-      <PropertiesList :headers="headers" :properties="propertiesEnhanced"></PropertiesList>
+      <PropertiesList :headers="headers" :properties="propertiesFiltered"></PropertiesList>
     </div>
   </div>
 </template>

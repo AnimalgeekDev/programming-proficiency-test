@@ -29,6 +29,22 @@ export default {
       this.fromEndDate = null;
       this.toStartDate = null;
       this.toEndDate = null;
+      this.emitFilterChange();
+    },
+    convertToDateWithoutHour(date) {
+      if (!date) return null;
+      const d = new Date(date);
+      return new Date(d.setHours(0, 0, 0, 0));
+    },
+    emitFilterChange() {
+      this.$emit('filterChange', {
+        propertyType: this.propertyType,
+        userId: this.userId,
+        fromStartDate: this.convertToDateWithoutHour(this.fromStartDate),
+        fromEndDate: this.convertToDateWithoutHour(this.fromEndDate),
+        toStartDate: this.convertToDateWithoutHour(this.toStartDate),
+        toEndDate: this.convertToDateWithoutHour(this.toEndDate),
+      });
     },
   },
   watch: {
@@ -36,11 +52,19 @@ export default {
       if ((new Date(newDate)).getTime() > (new Date(this.fromEndDate)).getTime()) {
         this.fromEndDate = null;
       }
+      this.emitFilterChange();
     },
     toStartDate(newDate) {
       if (new Date(newDate).getTime() > (new Date(this.toEndDate)).getTime()) {
         this.toEndDate = null;
       }
+      this.emitFilterChange();
+    },
+    fromEndDate() {
+      this.emitFilterChange();
+    },
+    toEndDate() {
+      this.emitFilterChange();
     },
   },
   setup() {
@@ -49,37 +73,66 @@ export default {
 };
 </script>
 <template>
-  <div>
-    <label for="filter">Tipo de propiedad:</label>
-    <select type="text" id="propertyType" v-model="propertyType">
-      <option value=""></option>
-      <option v-for="{ id, name } in propertiesType" :key="id" :value="id">{{ name }}</option>
-    </select>
+  <div class="border border-gray-300 rounded-2xl m-4 py-8 px-4">
+    <div class="flex gap-4">
+      <div class="flex mr-4">
+        <label class="mr-2" for="propertyType">Tipo de propiedad:</label>
+        <select id="propertyType" type="text"
+          class="w-48 bg-white border border-gray-400 rounded-md"
+          v-model="propertyType" @change="emitFilterChange">
+          <option value=""></option>
+          <option v-for="{ id, name } in propertiesType" :key="id" :value="id">{{ name }}</option>
+        </select>
+      </div>
 
-    <label for="filter">Usuario:</label>
-    <select type="text" id="user" v-model="userId">
-      <option value=""></option>
-      <option v-for="{ id, name } in users" :key="id" :value="id">{{ name }}</option>
-    </select>
+      <div class="flex mr-4">
+        <label class="mr-2" for="userId">Usuario:</label>
+        <select id="userId" type="text"
+          class="w-48 bg-white border border-gray-400 rounded-md" v-model="userId"
+          @change="emitFilterChange">
+          <option value=""></option>
+          <option v-for="{ id, name } in users" :key="id" :value="id">{{ name }}</option>
+        </select>
+      </div>
+    </div>
 
-    <div>
+    <div class="flex flex-col my-4">
       <div>Fecha inicio de alquiler</div>
-      <label for="filter">Desde:</label>
-      <input type="date" id="date" v-model="fromStartDate" />
-      <label for="filter">Hasta:</label>
-      <input type="date" id="date" v-model="fromEndDate" />
+      <div class="flex flex-row ml-3 my-1">
+        <label class="w-12 mr-3" for="fromStartDate">Desde:</label>
+        <input id="fromStartDate" type="date"
+          class="text-center border w-36 rounded-s border-gray-400"
+          v-model="fromStartDate" />
+      </div>
+      <div class="flex flex-row ml-3 my-1">
+        <label class="w-12 mr-3" for="fromEndDate">Hasta:</label>
+        <input id="fromEndDate" type="date"
+          class="text-center border w-36 rounded-s border-gray-400"
+          v-model="fromEndDate" />
+      </div>
     </div>
 
-    <div>
+    <div class="flex flex-col my-4">
       <div>Fecha fin de alquiler</div>
-      <label for="filter">Desde:</label>
-      <input type="date" id="date" v-model="toStartDate" />
-      <label for="filter">Hasta:</label>
-      <input type="date" id="date" v-model="toEndDate" />
+      <div class="flex flex-row ml-3 my-1">
+        <label class="w-12 mr-3" for="toStartDate">Desde:</label>
+        <input id="toStartDate" type="date"
+          class="text-center border w-36 rounded-s border-gray-400"
+          v-model="toStartDate" />
+      </div>
+      <div class="flex flex-row ml-3 my-1">
+        <label class="w-12 mr-3" for="toEndDate">Hasta:</label>
+        <input id="toEndDate" type="date" class="text-center border w-36 rounded-s border-gray-400"
+          v-model="toEndDate" />
+      </div>
     </div>
 
-    <div>
-      <button @click="clearFilters">Limpiar filtros</button>
+    <div class="mt-6">
+      <button
+        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-m"
+        @click="clearFilters">
+        Limpiar filtros
+      </button>
     </div>
   </div>
 </template>
